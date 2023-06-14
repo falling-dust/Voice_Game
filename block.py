@@ -3,6 +3,7 @@ import random
 import cocos
 from pill import Pill
 
+
 class Block(cocos.sprite.Sprite):
     def __init__(self, game):
         super(Block, self).__init__('photo/black.png')
