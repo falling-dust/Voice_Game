@@ -53,7 +53,7 @@ class Gameover(cocos.layer.ColorLayer):
         }
 
         # 读取本地的JSON文件
-        with open('top_scores.json', 'r') as file:
+        with open('top_scores.json', 'r', encoding='utf-8') as file:
             top_scores = json.load(file)
 
         # 更新排行榜数据
