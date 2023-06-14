@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+
 import cocos
-import urllib
 import json
 from defines import *
+
 
 class Billboard(cocos.layer.ColorLayer):
     def __init__(self, game):
@@ -15,47 +16,55 @@ class Billboard(cocos.layer.ColorLayer):
 
         self.schedule_interval(self.get_top, 0.5)
 
-
     def get_top(self, dt):
+        # 从本地的JSON文件获取排行榜数据
         self.remove(self.loading)
         self.unschedule(self.get_top)
-        req = urllib.urlopen('http://ppx.crossincode.com/top/?score=%d' % self.game.score)
-        data = json.loads(req.read())
+
+        # 读取本地的JSON文件
+        with open('top_scores.json', 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
         top_a = data['all']
         top_t = data['today']
+
         i = 0
         for d in top_a:
             i += 1
-            t = cocos.text.Label(u'%-16s %s' % (d['name'], d['score']),
+            t = cocos.text.Label(u'%-10s %-10s %s' % (d['name'], d['score'], d['date']),
                                  font_name=FONTS, font_size=18)
-            t.position = 60, 370 - i * 26
+            t.position = 120, 370 - i * 26
             self.add(t)
+
         i = 0
         for d in top_t:
             i += 1
-            t = cocos.text.Label(u'%-16s %s' % (d['name'], d['score']),
+            t = cocos.text.Label(u'%-10s %-10s %s' % (d['name'], d['score'], d['date']),
                                  font_name=FONTS, font_size=18)
-            t.position = 360, 370 - i * 26
+            t.position = 120, 650 - i * 26
             self.add(t)
             if i == 1:
                 self.game.top = d['name'], d['score']
+
         name = ''
         if self.game.name:
             name = self.game.name + u'，'
-        rank = cocos.text.Label(name + u'你的成绩 %d 打败了银河系中 %s%% 的皮皮虾！' % (self.game.score, data['rank']),
+        rank = cocos.text.Label(name + u'你的成绩 %d 打败了银河系中 %s%% 的皮皮虾！' % (self.game.score, 99),
                                 font_name=FONTS,
                                 font_size=16)
         rank.position = 20, 430
         self.add(rank)
+
         top_all = cocos.text.Label(u'今日排名',
                                    font_name=FONTS,
                                    font_size=20)
-        top_all.position = 100, 380
+        top_all.position = 300, 380
         self.add(top_all)
+
         top_today = cocos.text.Label(u'历史排名',
-                                   font_name=FONTS,
-                                   font_size=20)
-        top_today.position = 420, 380
+                                     font_name=FONTS,
+                                     font_size=20)
+        top_today.position = 300, 580
         self.add(top_today)
 
         menu = cocos.menu.Menu()
@@ -67,7 +76,9 @@ class Billboard(cocos.layer.ColorLayer):
         self.add(menu)
 
     def replay(self):
+        # 重新开始游戏
         self.game.reset()
 
     def show(self):
+        # 显示排行榜
         self.visible = True

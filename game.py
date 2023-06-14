@@ -11,6 +11,7 @@ from gameover import Gameover
 from billboard import Billboard
 from defines import *
 
+
 # 创建一个继承自cocos.layer.ColorLayer的VoiceGame类
 class VoiceGame(cocos.layer.ColorLayer):
     is_event_handler = True
@@ -147,7 +148,7 @@ class VoiceGame(cocos.layer.ColorLayer):
 
 
 # 初始化Cocos2d导演
-cocos.director.director.init(caption="Let's Go! PiPiXia!")
+cocos.director.director.init(width=WIDTH, height=HEIGHT, caption="Let's Go! PiPiXia!")
 
 # 运行场景
 cocos.director.director.run(cocos.scene.Scene(VoiceGame()))

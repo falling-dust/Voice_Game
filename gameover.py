@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+
 import cocos
-import urllib
 from defines import *
+import json
+import datetime
 
 
 class Gameover(cocos.layer.ColorLayer):
@@ -30,7 +32,7 @@ class Gameover(cocos.layer.ColorLayer):
         menu.create_menu([self.name, submit, top, replay])
         self.add(menu)
 
-        logo = cocos.sprite.Sprite('crossin-logo.png')
+        logo = cocos.sprite.Sprite('photo/crossin-logo.png')
         logo.position = 550, 100
         self.add(logo, 99999)
 
@@ -40,12 +42,30 @@ class Gameover(cocos.layer.ColorLayer):
             self.game.name = txt[:16]
 
     def submit(self):
-        name = urllib.quote(self.game.name.encode('utf8'))
-        req = urllib.urlopen(
-            'http://ppx.crossincode.com/record/?name=%s&score=%d&tag=%s' % (name, self.game.score, 'source'))
-        resp = req.read()
-        if resp:
-            self.game.show_top()
+        # 获取当前日期
+        current_date = datetime.date.today().isoformat()
+
+        # 将成绩写入本地的JSON文件
+        data = {
+            'name': self.game.name,
+            'score': self.game.score,
+            'date': current_date
+        }
+
+        # 读取本地的JSON文件
+        with open('top_scores.json', 'r') as file:
+            top_scores = json.load(file)
+
+        # 更新排行榜数据
+        top_scores['all'].append(data)
+        top_scores['today'].append(data)
+
+        # 将更新后的数据写入本地的JSON文件
+        with open('top_scores.json', 'w') as file:
+            json.dump(top_scores, file)
+
+        self.game.show_top()
 
     def replay(self):
+        # 重新开始游戏
         self.game.reset()
