@@ -18,7 +18,6 @@ class VoiceGame(cocos.layer.ColorLayer):
 
     def __init__(self):
         # 初始化 VoiceGame 类
-
         super(VoiceGame, self).__init__(255, 255, 255, 255, WIDTH, HEIGHT)  # 设置场景的背景颜色和大小
         pygame.mixer.init()
 
@@ -68,10 +67,23 @@ class VoiceGame(cocos.layer.ColorLayer):
                               frames_per_buffer=self.NUM_SAMPLES)  # 打开音频流
         self.stream.stop_stream()  # 停止音频流
 
-        pygame.mixer_music.load('music/bgm.wav')  # 加载背景音乐
-        pygame.mixer_music.play(-1)
+        self.background_music = None  # 背景音乐对象
+        self.load_background_music('music/bgm.wav')
+        self.play_background_music()
 
         self.schedule(self.update)  # 调度器，将update方法添加到场景中定期更新
+
+    # 音乐控制
+    def load_background_music(self, file_path):
+        self.background_music = pygame.mixer.Sound(file_path)
+
+    def play_background_music(self, loop=-1):
+        if self.background_music:
+            self.background_music.play(loop)
+
+    def stop_background_music(self):
+        if self.background_music:
+            self.background_music.stop()
 
     def on_mouse_press(self, x, y, buttons, modifiers):
         pass
@@ -116,24 +128,30 @@ class VoiceGame(cocos.layer.ColorLayer):
         self.score = 0
         self.txt_score.element.text = u'分数：0'
         self.ppx.reset()
+
+        # 移除游戏结束和计分板（如果存在）
         if self.gameover:
             self.remove(self.gameover)
             self.gameover = None
         if self.billboard:
             self.remove(self.billboard)
             self.billboard = None
-        self.stream.start_stream()
-        self.resume_scheduler()
-        pygame.mixer_music.play(-1)
+
+        self.stream.start_stream()  # 开启声音输入
+        self.resume_scheduler()  # 恢复调度器的运行
+        self.play_background_music()  # 播放背景音乐
+
+        # 如果存在最佳记录，则显示最佳记录提示
         if self.top[0] and self.top[1]:
             notice = u'%s 刚刚以 %d 分刷新了今日最佳！' % self.top
             self.top_notice.element.text = notice
             self.top_notice.x = 800
 
     def end_game(self):
-        # 结束游戏
+        # 跳跃失败，游戏结束
         self.stream.stop_stream()
         self.pause_scheduler()
+        self.stop_background_music()
         self.gameover = Gameover(self)
         self.add(self.gameover, 100000)
 
