@@ -21,7 +21,7 @@ class Gameover(cocos.layer.ColorLayer):
         menu.font_title['font_name'] = FONTS
         menu.font_item['font_name'] = FONTS
         menu.font_item_selected['font_name'] = FONTS
-        self.name = cocos.menu.EntryMenuItem(u'大虾请留名：', self.input_name, self.game.name)
+        self.name = cocos.menu.EntryMenuItem(u'大佬请留名：', self.input_name, self.game.name)
         self.name.y = 0
         submit = cocos.menu.MenuItem(u'提交成绩', self.submit)
         submit.y = -33
@@ -42,25 +42,46 @@ class Gameover(cocos.layer.ColorLayer):
             self.game.name = txt[:16]
 
     def submit(self):
+        import datetime
+        import json
+
         # 获取当前日期
         current_date = datetime.date.today().isoformat()
 
-        # 将成绩写入本地的JSON文件
+        # 将成绩写入本地的 JSON 文件
         data = {
             'name': self.game.name,
             'score': self.game.score,
             'date': current_date
         }
 
-        # 读取本地的JSON文件
+        # 读取本地的 JSON 文件
         with open('top_scores.json', 'r', encoding='utf-8') as file:
             top_scores = json.load(file)
 
         # 更新排行榜数据
-        top_scores['all'].append(data)
-        top_scores['today'].append(data)
+        all_scores = top_scores['all']
+        today_scores = top_scores['today']
+        inserted = False
 
-        # 将更新后的数据写入本地的JSON文件
+        # 遍历 all_scores 列表，根据 score 的大小找到合适的位置插入数据
+        for i, score in enumerate(all_scores):
+            if data['score'] > score['score']:
+                all_scores.insert(i, data)
+                inserted = True
+                break
+
+        # 如果 data 的 score 比 all_scores 中的任何一个都小，将其添加到最后
+        if not inserted:
+            all_scores.append(data)
+
+        # 遍历 today_scores 列表，根据 score 的大小找到合适的位置插入数据
+        for i, score in enumerate(today_scores):
+            if data['score'] > score['score']:
+                today_scores.insert(i, data)
+                break
+
+        # 将更新后的数据写入本地的 JSON 文件
         with open('top_scores.json', 'w') as file:
             json.dump(top_scores, file)
 
@@ -69,3 +90,4 @@ class Gameover(cocos.layer.ColorLayer):
     def replay(self):
         # 重新开始游戏
         self.game.reset()
+
