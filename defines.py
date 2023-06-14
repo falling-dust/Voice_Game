@@ -9,6 +9,6 @@ HEIGHT = 480
 FONTS = ['SimHei', 'STHeiti', 'SimHei', 'SimSun']
 
 # 颜色
-WHITE = (255, 255, 255, 255)
-BLACK = (0, 0, 0, 255)
+WHITE = (230, 230, 255, 255)
+BLACK = (0, 50, 0, 255)
 
