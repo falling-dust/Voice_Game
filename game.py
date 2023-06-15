@@ -10,7 +10,7 @@ import struct
 
 from sympy.core import singleton
 
-from iat_ws_python3 import WsParam, RecognitionWebsocket
+# from iat_ws_python3 import WsParam, RecognitionWebsocket
 from ppx import PPX
 from block import Block
 from gameover import Gameover, run_websocket
@@ -22,9 +22,9 @@ from defines import *
 class VoiceGame(cocos.layer.ColorLayer):
     is_event_handler = True
 
-    def __init__(self, ws_instance):
+    def __init__(self):  # ,ws_instance***
         # 初始化 VoiceGame 类
-        self.ws = ws_instance
+        # self.ws = ws_instance   ***
         super(VoiceGame, self).__init__(255, 255, 255, 255, WIDTH, HEIGHT)  # 设置场景的背景颜色和大小
         pygame.mixer.init()
 
@@ -34,13 +34,13 @@ class VoiceGame(cocos.layer.ColorLayer):
         # 分数标签
         self.score = 0
         self.txt_score = cocos.text.Label(u'分数：0', font_name=FONTS, font_size=24, color=BLACK)
-        self.txt_score.position = 500, 440
+        self.txt_score.position = 800, 600
         self.add(self.txt_score, 99999)
 
         # 顶部通知信息
         self.top = '', 0
         self.top_notice = cocos.text.Label(u'', font_name=FONTS, font_size=18, color=BLACK)
-        self.top_notice.position = 400, 410
+        self.top_notice.position = 700, 510
         self.add(self.top_notice, 99999)
 
         self.name = ''  # 玩家姓名
@@ -50,8 +50,8 @@ class VoiceGame(cocos.layer.ColorLayer):
         self.LEVEL = 1500  # 声音保存的阈值
 
         # 顶部声音条
-        self.voiceBar = Sprite('photo/black.png', color=(0, 0, 255))
-        self.voiceBar.position = 20, 450
+        self.voiceBar = Sprite('photo/black.png', color=(100, 200, 255))
+        self.voiceBar.position = 20, 550
         self.voiceBar.scale_y = 0.1
         self.voiceBar.image_anchor = 0, 0
         self.add(self.voiceBar)
@@ -177,18 +177,18 @@ if __name__ == "__main__":
     # AudioFile参数为空时表示不在本地生成音频文件，是否设置为空可以根据开发需求确定
 
     # 语音识别启动
-    ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
-                       APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
-    ws_url = ws_param.create_url()
-    ws = RecognitionWebsocket(ws_url, ws_param)
+    # ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
+    #                    APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
+    # ws_url = ws_param.create_url()
+    # ws = RecognitionWebsocket(ws_url, ws_param)
 
-    websocket_thread = threading.Thread(target=run_websocket, args=(ws,))
-    websocket_thread.start()
+    # websocket_thread = threading.Thread(target=run_websocket, args=(ws,))
+    # websocket_thread.start()
 
-    while True:
-        if ws.instruct_id == 0:
-            ws.instruct_id = -1
+    # while True:
+    #     if ws.instruct_id == 0:
+    #         ws.instruct_id = -1
             # 初始化Cocos2d导演
             cocos.director.director.init(width=WIDTH, height=HEIGHT, caption="Let's Go! JieZi!")
             # 运行场景
-            cocos.director.director.run(cocos.scene.Scene(VoiceGame(ws)))
+            cocos.director.director.run(cocos.scene.Scene(VoiceGame())) # ws
