@@ -22,10 +22,7 @@ from defines import *
 class VoiceGame(cocos.layer.ColorLayer):
     is_event_handler = True
 
-    def __init__(self, ws):
-        # 初始化语音识别器
-        self.ws = ws
-
+    def __init__(self):
         # 初始化 VoiceGame 类
         super(VoiceGame, self).__init__(255, 255, 255, 255, WIDTH, HEIGHT)  # 设置场景的背景颜色和大小
         pygame.mixer.init()
@@ -195,4 +192,4 @@ if __name__ == "__main__":
             # 初始化Cocos2d导演
             cocos.director.director.init(width=WIDTH, height=HEIGHT, caption="Let's Go! JieZi!")
             # 运行场景
-            cocos.director.director.run(cocos.scene.Scene(VoiceGame(ws)))
+            cocos.director.director.run(cocos.scene.Scene(VoiceGame()))

@@ -44,18 +44,18 @@ class Gameover(cocos.layer.ColorLayer):
         logo.position = 550, 100
         self.add(logo, 99999)
 
-        ws_instance = self.game.ws
+        ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
+                           APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
+        ws_url = ws_param.create_url()
+        ws = RecognitionWebsocket(ws_url, ws_param)
 
         def run_voice_again():
-            ws_instance.connect()
-            ws_instance.run_forever()
+            ws.connect()
+            ws.run_forever()
 
         # 语音识别启动
         websocket_thread = threading.Thread(target=run_voice_again)
         websocket_thread.start()
-
-        # instruction_thread = threading.Thread(target=self.recognize_instruction, args=(self.game.ws,))
-        # instruction_thread.start()
 
     def input_name(self, txt):
         self.game.name = txt
@@ -113,8 +113,6 @@ class Gameover(cocos.layer.ColorLayer):
         self.game.reset()
 
     def recognize_instruction(self, ws_instance):
-        while True:
-            if ws_instance.instruct_id == 1:
-                ws_instance.instruct_id = -1
-                self.replay()
-                break
+        if ws_instance.instruct_id == 1:
+            ws_instance.instruct_id = -1
+            self.replay()
