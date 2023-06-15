@@ -18,7 +18,6 @@ class VoiceGame(cocos.layer.ColorLayer):
 
     def __init__(self):
         # 初始化 VoiceGame 类
-
         super(VoiceGame, self).__init__(255, 255, 255, 255, WIDTH, HEIGHT)  # 设置场景的背景颜色和大小
         pygame.mixer.init()
 
@@ -68,10 +67,23 @@ class VoiceGame(cocos.layer.ColorLayer):
                               frames_per_buffer=self.NUM_SAMPLES)  # 打开音频流
         self.stream.stop_stream()  # 停止音频流
 
-        pygame.mixer_music.load('music/bgm.wav')  # 加载背景音乐
-        pygame.mixer_music.play(-1)
+        self.background_music = None  # 背景音乐对象
+        self.load_background_music('music/bgm.wav')
+        self.play_background_music()
 
         self.schedule(self.update)  # 调度器，将update方法添加到场景中定期更新
+
+    # 音乐控制
+    def load_background_music(self, file_path):
+        self.background_music = pygame.mixer.Sound(file_path)
+
+    def play_background_music(self, loop=-1):
+        if self.background_music:
+            self.background_music.play(loop)
+
+    def stop_background_music(self):
+        if self.background_music:
+            self.background_music.stop()
 
     def on_mouse_press(self, x, y, buttons, modifiers):
         pass
@@ -92,13 +104,13 @@ class VoiceGame(cocos.layer.ColorLayer):
         k = max(struct.unpack('2048h', string_audio_data))  # 解析取样数据，找到最大值
         self.voiceBar.scale_x = k / 10000.0  # 根据取样值设置声音条长度
 
-        if k > 3000:
+        if k > 2000:
             if not self.ppx.dead:
                 # 根据取样值更新地板的位置，最大偏移量为 (k / 20.0) 或 150
                 self.floor.x -= min((k / 20.0), 150) * dt
-        if k > 8000:
-            # 如果取样值大于 8000，调用角色的跳跃方法，参数为 (k - 8000) / 25.0
-            self.ppx.jump((k - 8000) / 25.0)
+        if k > 6000:
+            # 如果取样值大于 6000，调用角色的跳跃方法，参数为 (k - 6000) / 25.0
+            self.ppx.jump((k - 6000) / 25.0)
 
         self.floor.x -= self.ppx.velocity * dt  # 根据角色的速度更新地板的位置
         self.collide()  # 执行碰撞检测
@@ -116,24 +128,30 @@ class VoiceGame(cocos.layer.ColorLayer):
         self.score = 0
         self.txt_score.element.text = u'分数：0'
         self.ppx.reset()
+
+        # 移除游戏结束和计分板（如果存在）
         if self.gameover:
             self.remove(self.gameover)
             self.gameover = None
         if self.billboard:
             self.remove(self.billboard)
             self.billboard = None
-        self.stream.start_stream()
-        self.resume_scheduler()
-        pygame.mixer_music.play(-1)
+
+        self.stream.start_stream()  # 开启声音输入
+        self.resume_scheduler()  # 恢复调度器的运行
+        self.play_background_music()  # 播放背景音乐
+
+        # 如果存在最佳记录，则显示最佳记录提示
         if self.top[0] and self.top[1]:
             notice = u'%s 刚刚以 %d 分刷新了今日最佳！' % self.top
             self.top_notice.element.text = notice
             self.top_notice.x = 800
 
     def end_game(self):
-        # 结束游戏
+        # 跳跃失败，游戏结束
         self.stream.stop_stream()
         self.pause_scheduler()
+        self.stop_background_music()
         self.gameover = Gameover(self)
         self.add(self.gameover, 100000)
 

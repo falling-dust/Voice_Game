@@ -26,25 +26,30 @@ class Billboard(cocos.layer.ColorLayer):
             data = json.load(file)
 
         top_a = data['all']
-        top_t = data['today']
+        # top_t = data['today']
 
         i = 0
         for d in top_a:
             i += 1
-            t = cocos.text.Label(u'%-10s %-10s %s' % (d['name'], d['score'], d['date']),
-                                 font_name=FONTS, font_size=18)
+            rank = "No."+str(i)
+            t = cocos.text.Label(
+                '{:<10s} {:<10s} {:<10s} {}'.format(rank, str(d['name']), str(d['score']), d['date']),
+                font_name=FONTS, font_size=18)
+
             t.position = 120, 370 - i * 26
             self.add(t)
+            if i >= 6:
+                break
 
-        i = 0
-        for d in top_t:
-            i += 1
-            t = cocos.text.Label(u'%-10s %-10s %s' % (d['name'], d['score'], d['date']),
-                                 font_name=FONTS, font_size=18)
-            t.position = 120, 650 - i * 26
-            self.add(t)
-            if i == 1:
-                self.game.top = d['name'], d['score']
+        # i = 0
+        # for d in top_t:
+        #     i += 1
+        #     t = cocos.text.Label(u'%-10s %-10s %s' % (d['name'], d['score'], d['date']),
+        #                          font_name=FONTS, font_size=18)
+        #     t.position = 120, 650 - i * 26
+        #     self.add(t)
+        #     if i == 1:
+        #         self.game.top = d['name'], d['score']
 
         name = ''
         if self.game.name:
@@ -55,17 +60,17 @@ class Billboard(cocos.layer.ColorLayer):
         rank.position = 20, 430
         self.add(rank)
 
-        top_all = cocos.text.Label(u'今日排名',
+        top_all = cocos.text.Label(u'排行榜',
                                    font_name=FONTS,
                                    font_size=20)
-        top_all.position = 300, 380
+        top_all.position = 260, 380
         self.add(top_all)
 
-        top_today = cocos.text.Label(u'历史排名',
-                                     font_name=FONTS,
-                                     font_size=20)
-        top_today.position = 300, 580
-        self.add(top_today)
+        # top_today = cocos.text.Label(u'今日排名',
+        #                              font_name=FONTS,
+        #                              font_size=20)
+        # top_today.position = 300, 580
+        # self.add(top_today)
 
         menu = cocos.menu.Menu()
         menu.font_item['font_name'] = FONTS
