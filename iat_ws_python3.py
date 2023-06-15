@@ -146,12 +146,21 @@ class RecognitionWebsocket(WebSocketClient):
                 self.rec_text = result
                 logging.info('识别结果为: {}'.format(self.rec_text) + " 当前状态：" + str(self.status))
 
-                if "开始" in result:
+                if "开始游戏" in result:
                     self.instruct_id = 0
-                    self.status = STATUS_LAST_FRAME
-                elif "再来" in result:
+                    # self.status = STATUS_LAST_FRAME
+                elif "再来一次" in result:
                     self.instruct_id = 1
-                    self.status = STATUS_LAST_FRAME
+                    # self.status = STATUS_LAST_FRAME
+                elif "播放" in result:
+                    self.instruct_id = 2
+                    # self.status = STATUS_LAST_FRAME
+                elif "关闭" in result:
+                    self.instruct_id = 3
+                    # self.status = STATUS_LAST_FRAME
+                elif "打开排行榜" in result:
+                    self.instruct_id = 4
+                    # self.status = STATUS_LAST_FRAME
 
         except Exception as e:
             logging.info(message)
@@ -198,22 +207,23 @@ class RecognitionWebsocket(WebSocketClient):
                                   'encoding': 'raw'}}
                     self.send(json.dumps(d))
                 # 最后一帧处理
-                elif self.status == STATUS_LAST_FRAME:
-                    d = {'data': {'status': 2, 'format': 'audio/L16;rate=16000',
-                                  'audio': str(base64.b64encode(buf), 'utf-8'),
-                                  'encoding': 'raw'}}
-                    self.send(json.dumps(d))
-                    logging.info('录音结束')
-                    time.sleep(1)
-
-                    stream.stop_stream()
-                    stream.close()
-                    audio.terminate()
-
-                    break
+                # elif self.status == STATUS_LAST_FRAME:
+                #     d = {'data': {'status': 2, 'format': 'audio/L16;rate=16000',
+                #                   'audio': str(base64.b64encode(buf), 'utf-8'),
+                #                   'encoding': 'raw'}}
+                #     self.send(json.dumps(d))
+                #     logging.info('录音结束')
+                #     time.sleep(1)
+                #
+                #     stream.stop_stream()
+                #     stream.close()
+                #     audio.terminate()
+                #
+                #     break
                 # 模拟音频采样间隔
                 time.sleep(interval)
             self.closed(1000, '')
+            # self.terminate()
 
         thread.start_new_thread(run, ())
 
@@ -229,6 +239,7 @@ if __name__ == "__main__":
     def run_websocket():
         ws.connect()
         ws.run_forever()
+        print("结束")
 
     def recognize_instruction():
         while True:
@@ -249,7 +260,7 @@ if __name__ == "__main__":
         if ws.status == 2:
             break
 
-    time.sleep(5)
+    time.sleep(115)
     print("重启线程")
     # ws = RecognitionWebsocket(ws_url, ws_param)
 

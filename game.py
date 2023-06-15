@@ -22,8 +22,9 @@ from defines import *
 class VoiceGame(cocos.layer.ColorLayer):
     is_event_handler = True
 
-    def __init__(self):
+    def __init__(self, ws_instance):
         # 初始化 VoiceGame 类
+        self.ws = ws_instance
         super(VoiceGame, self).__init__(255, 255, 255, 255, WIDTH, HEIGHT)  # 设置场景的背景颜色和大小
         pygame.mixer.init()
 
@@ -145,7 +146,6 @@ class VoiceGame(cocos.layer.ColorLayer):
 
         self.stream.start_stream()  # 开启声音输入
         self.resume_scheduler()  # 恢复调度器的运行
-        self.play_background_music()  # 播放背景音乐
 
         # 如果存在最佳记录，则显示最佳记录提示
         if self.top[0] and self.top[1]:
@@ -157,7 +157,6 @@ class VoiceGame(cocos.layer.ColorLayer):
         # 跳跃失败，游戏结束
         self.stream.stop_stream()
         self.pause_scheduler()
-        self.stop_background_music()
         self.gameover = Gameover(self)
         self.add(self.gameover, 100000)
 
@@ -192,4 +191,4 @@ if __name__ == "__main__":
             # 初始化Cocos2d导演
             cocos.director.director.init(width=WIDTH, height=HEIGHT, caption="Let's Go! JieZi!")
             # 运行场景
-            cocos.director.director.run(cocos.scene.Scene(VoiceGame()))
+            cocos.director.director.run(cocos.scene.Scene(VoiceGame(ws)))

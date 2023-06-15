@@ -44,23 +44,38 @@ class Gameover(cocos.layer.ColorLayer):
         logo.position = 550, 100
         self.add(logo, 99999)
 
-        ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
-                           APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
-        ws_url = ws_param.create_url()
-        ws = RecognitionWebsocket(ws_url, ws_param)
-
-        def run_voice_again():
-            ws.connect()
-            ws.run_forever()
-
-        # 语音识别启动
-        websocket_thread = threading.Thread(target=run_voice_again)
-        websocket_thread.start()
+        self.schedule(self.update)  # 调度器，将update方法添加到场景中定期更新
+        # ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
+        #                    APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
+        # ws_url = ws_param.create_url()
+        # ws = RecognitionWebsocket(ws_url, ws_param)
+        #
+        # def run_voice_again():
+        #     ws.connect()
+        #     ws.run_forever()
+        #
+        # # 语音识别启动
+        # websocket_thread = threading.Thread(target=run_voice_again)
+        # websocket_thread.start()
 
     def input_name(self, txt):
         self.game.name = txt
         if len(txt) > 16:
             self.game.name = txt[:16]
+
+    def update(self, dt):
+        if self.game.ws.instruct_id == 2:
+            self.game.ws.instruct_id = -1
+            self.game.play_background_music()
+        elif self.game.ws.instruct_id == 3:
+            self.game.ws.instruct_id = -1
+            self.game.stop_background_music()
+        elif self.game.ws.instruct_id == 1:
+            self.game.ws.instruct_id = -1
+            self.replay()
+        # elif self.game.ws.instruct_id == 4:
+        #     self.game.ws.instruct_id = -1
+        #     self.game.show_top()
 
     def submit(self):
         import datetime
@@ -110,6 +125,7 @@ class Gameover(cocos.layer.ColorLayer):
 
     def replay(self):
         # 重新开始游戏
+        self.pause_scheduler()
         self.game.reset()
 
     def recognize_instruction(self, ws_instance):
