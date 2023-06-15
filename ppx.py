@@ -13,7 +13,8 @@ class PPX(cocos.sprite.Sprite):
         self.frames = image.Animation([frame_1, frame_2])
         frame_rush_1 = image.AnimationFrame(image.load('photo/ppx_rush1.png'), 0.15)
         frame_rush_2 = image.AnimationFrame(image.load('photo/ppx_rush2.png'), 0.15)
-        self.frames_rush = image.Animation([frame_rush_1, frame_rush_2])
+        frame_rush_3 = image.AnimationFrame(image.load('photo/ppx_rush3.png'), 0.15)
+        self.frames_rush = image.Animation([frame_rush_1, frame_rush_2, frame_rush_3])
         super(PPX, self).__init__(self.frames)
 
         self.sound_rush = pygame.mixer.Sound("music/rush.wav")
