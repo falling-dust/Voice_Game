@@ -40,7 +40,6 @@ from ws4py.client.threadedclient import WebSocketClient
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-
 STATUS_FIRST_FRAME = 0  # 第一帧的标识
 STATUS_CONTINUE_FRAME = 1  # 中间帧标识
 STATUS_LAST_FRAME = 2  # 最后一帧的标识
@@ -49,6 +48,7 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
+
 
 class WsParam(object):
     # 初始化
@@ -111,7 +111,8 @@ class RecognitionWebsocket(WebSocketClient):
     def __init__(self, url, ws_param):
         super().__init__(url)
         self.ws_param = ws_param
-        self.rec_text = {}
+        self.rec_text = {}  # 识别结果信息
+        self.status = STATUS_FIRST_FRAME  # 音频的状态信息，标识音频是第一帧，还是中间帧、最后一帧
 
     # 收到websocket消息的处理
     def received_message(self, message):
@@ -127,20 +128,12 @@ class RecognitionWebsocket(WebSocketClient):
             else:
                 data = json.loads(message)['data']['result']
                 ws = data['ws']
-                pgs = data['pgs']
-                sn = data['sn']
 
                 result = ''
                 for i in ws:
                     for w in i['cw']:
                         result += w['w']
-                if pgs == 'rpl':
-                    rg = data['rg']
-                    self.rec_text.update({rg[0]: result})
-                    for i in range(rg[0] + 1, rg[1]):
-                        self.rec_text.pop(i, '404')
-                else:
-                    self.rec_text[sn] = result
+                self.rec_text = result
                 logging.info('识别结果为: {}'.format(self.rec_text))
         except Exception as e:
             logging.info(message)
@@ -154,11 +147,14 @@ class RecognitionWebsocket(WebSocketClient):
     def closed(self, code, reason=None):
         logging.info('语音识别通道关闭' + str(code) + str(reason))
 
+    def closed_connection(self):
+        self.status = STATUS_LAST_FRAME
+
     # 收到websocket连接建立的处理
     def opened(self):
         def run(*args):
             interval = 0.04  # 发送音频间隔(单位:s)
-            status = STATUS_FIRST_FRAME  # 音频的状态信息，标识音频是第一帧，还是中间帧、最后一帧
+            status = STATUS_FIRST_FRAME
             audio = pyaudio.PyAudio()
             stream = audio.open(format=FORMAT,
                                 channels=CHANNELS,
@@ -167,6 +163,7 @@ class RecognitionWebsocket(WebSocketClient):
 
             while True:
                 buf = stream.read(CHUNK)
+                # print(buf)
                 # 第一帧处理
                 # 发送第一帧音频，带business 参数
                 # appid 必须带上，只需第一帧发送
@@ -203,7 +200,9 @@ class RecognitionWebsocket(WebSocketClient):
                 time.sleep(interval)
             self.closed(1000, '')
 
+
         thread.start_new_thread(run, ())
+
 
 
 if __name__ == "__main__":
@@ -214,4 +213,3 @@ if __name__ == "__main__":
     ws = RecognitionWebsocket(ws_url, ws_param)
     ws.connect()
     ws.run_forever()
-

@@ -109,7 +109,7 @@ class VoiceGame(cocos.layer.ColorLayer):
                 # 根据取样值更新地板的位置，最大偏移量为 (k / 20.0) 或 150
                 self.floor.x -= min((k / 20.0), 150) * dt
         if k > 6000:
-            # 如果取样值大于 8000，调用角色的跳跃方法，参数为 (k - 8000) / 25.0
+            # 如果取样值大于 6000，调用角色的跳跃方法，参数为 (k - 6000) / 25.0
             self.ppx.jump((k - 6000) / 25.0)
 
         self.floor.x -= self.ppx.velocity * dt  # 根据角色的速度更新地板的位置
