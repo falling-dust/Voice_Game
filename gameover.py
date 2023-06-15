@@ -17,7 +17,7 @@ class Gameover(cocos.layer.ColorLayer):
         self.score.position = 200, 340
         self.add(self.score)
 
-        menu = cocos.menu.Menu(u'你挂了……')
+        menu = cocos.menu.Menu(u'济又输！')
         menu.font_title['font_name'] = FONTS
         menu.font_item['font_name'] = FONTS
         menu.font_item_selected['font_name'] = FONTS
