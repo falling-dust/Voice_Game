@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+import threading
 
 import cocos
 from defines import *
 import json
 import datetime
+
+from iat_ws_python3 import WsParam, RecognitionWebsocket
+
+
+def run_websocket(ws_instance):
+    ws_instance.connect()
+    ws_instance.run_forever()
 
 
 class Gameover(cocos.layer.ColorLayer):
@@ -35,6 +43,19 @@ class Gameover(cocos.layer.ColorLayer):
         logo = cocos.sprite.Sprite('photo/crossin-logo.png')
         logo.position = 550, 100
         self.add(logo, 99999)
+
+        ws_instance = self.game.ws
+
+        def run_voice_again():
+            ws_instance.connect()
+            ws_instance.run_forever()
+
+        # 语音识别启动
+        websocket_thread = threading.Thread(target=run_voice_again)
+        websocket_thread.start()
+
+        # instruction_thread = threading.Thread(target=self.recognize_instruction, args=(self.game.ws,))
+        # instruction_thread.start()
 
     def input_name(self, txt):
         self.game.name = txt
@@ -91,3 +112,9 @@ class Gameover(cocos.layer.ColorLayer):
         # 重新开始游戏
         self.game.reset()
 
+    def recognize_instruction(self, ws_instance):
+        while True:
+            if ws_instance.instruct_id == 1:
+                ws_instance.instruct_id = -1
+                self.replay()
+                break

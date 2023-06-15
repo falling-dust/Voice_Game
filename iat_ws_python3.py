@@ -25,6 +25,7 @@ import hashlib
 import base64
 import hmac
 import json
+import threading
 from urllib.parse import urlencode
 import logging
 
@@ -43,6 +44,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 STATUS_FIRST_FRAME = 0  # 第一帧的标识
 STATUS_CONTINUE_FRAME = 1  # 中间帧标识
 STATUS_LAST_FRAME = 2  # 最后一帧的标识
+
+I_START_GAME = 0  # 启动游戏
+I_RESTART_GAME = 1   # 重开游戏
+I_PLAY_MUSIC = 2  # 播放音乐
+I_STOP_MUSIC = 3  # 停止音乐
+
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -108,20 +115,23 @@ class WsParam(object):
 
 
 class RecognitionWebsocket(WebSocketClient):
+
     def __init__(self, url, ws_param):
         super().__init__(url)
         self.ws_param = ws_param
         self.rec_text = {}  # 识别结果信息
-        self.status = STATUS_FIRST_FRAME  # 音频的状态信息，标识音频是第一帧，还是中间帧、最后一帧
+        self.status = STATUS_FIRST_FRAME
+        self.instruct_id = -1
 
-    # 收到websocket消息的处理
+        # 收到websocket消息的处理
+
     def received_message(self, message):
         message = message.__str__()
 
         try:
             code = json.loads(message)['code']
             sid = json.loads(message)['sid']
-            status = json.loads(message)['data']['status']
+            self.status = json.loads(message)['data']['status']
             if code != 0:
                 err_msg = json.loads(message)['message']
                 logging.error('sid:%s call error:%s code is:%s' % (sid, err_msg, code))
@@ -134,7 +144,15 @@ class RecognitionWebsocket(WebSocketClient):
                     for w in i['cw']:
                         result += w['w']
                 self.rec_text = result
-                logging.info('识别结果为: {}'.format(self.rec_text))
+                logging.info('识别结果为: {}'.format(self.rec_text) + " 当前状态：" + str(self.status))
+
+                if "开始" in result:
+                    self.instruct_id = 0
+                    self.status = STATUS_LAST_FRAME
+                elif "再来" in result:
+                    self.instruct_id = 1
+                    self.status = STATUS_LAST_FRAME
+
         except Exception as e:
             logging.info(message)
             logging.error('receive msg,but parse exception: {}'.format(e))
@@ -147,14 +165,11 @@ class RecognitionWebsocket(WebSocketClient):
     def closed(self, code, reason=None):
         logging.info('语音识别通道关闭' + str(code) + str(reason))
 
-    def closed_connection(self):
-        self.status = STATUS_LAST_FRAME
-
     # 收到websocket连接建立的处理
     def opened(self):
         def run(*args):
             interval = 0.04  # 发送音频间隔(单位:s)
-            status = STATUS_FIRST_FRAME
+            self.status = STATUS_FIRST_FRAME
             audio = pyaudio.PyAudio()
             stream = audio.open(format=FORMAT,
                                 channels=CHANNELS,
@@ -167,7 +182,7 @@ class RecognitionWebsocket(WebSocketClient):
                 # 第一帧处理
                 # 发送第一帧音频，带business 参数
                 # appid 必须带上，只需第一帧发送
-                if status == STATUS_FIRST_FRAME:
+                if self.status == STATUS_FIRST_FRAME:
                     d = {'common': self.ws_param.CommonArgs,
                          'business': self.ws_param.BusinessArgs,
                          'data': {'status': 0, 'format': 'audio/L16;rate=16000',
@@ -175,15 +190,15 @@ class RecognitionWebsocket(WebSocketClient):
                                   'encoding': 'raw'}}
                     d = json.dumps(d)
                     self.send(d)
-                    status = STATUS_CONTINUE_FRAME
+                    self.status = STATUS_CONTINUE_FRAME
                 # 中间帧处理
-                elif status == STATUS_CONTINUE_FRAME:
+                elif self.status == STATUS_CONTINUE_FRAME:
                     d = {'data': {'status': 1, 'format': 'audio/L16;rate=16000',
                                   'audio': str(base64.b64encode(buf), 'utf-8'),
                                   'encoding': 'raw'}}
                     self.send(json.dumps(d))
                 # 最后一帧处理
-                elif status == STATUS_LAST_FRAME:
+                elif self.status == STATUS_LAST_FRAME:
                     d = {'data': {'status': 2, 'format': 'audio/L16;rate=16000',
                                   'audio': str(base64.b64encode(buf), 'utf-8'),
                                   'encoding': 'raw'}}
@@ -200,9 +215,7 @@ class RecognitionWebsocket(WebSocketClient):
                 time.sleep(interval)
             self.closed(1000, '')
 
-
         thread.start_new_thread(run, ())
-
 
 
 if __name__ == "__main__":
@@ -211,5 +224,42 @@ if __name__ == "__main__":
                        APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
     ws_url = ws_param.create_url()
     ws = RecognitionWebsocket(ws_url, ws_param)
-    ws.connect()
-    ws.run_forever()
+
+
+    def run_websocket():
+        ws.connect()
+        ws.run_forever()
+
+    def recognize_instruction():
+        while True:
+            if ws.instruct_id == 0:
+                break
+
+
+    # 创建并启动后台线程
+    websocket_thread = threading.Thread(target=run_websocket)
+    websocket_thread.start()
+
+    recognize_thread = threading.Thread(target=recognize_instruction)
+    recognize_thread.start()
+
+    while True:
+        print(ws.status)
+        time.sleep(1)
+        if ws.status == 2:
+            break
+
+    time.sleep(5)
+    print("重启线程")
+    # ws = RecognitionWebsocket(ws_url, ws_param)
+    websocket_thread = threading.Thread(target=run_websocket)
+    websocket_thread.start()
+
+    recognize_thread = threading.Thread(target=recognize_instruction)
+    recognize_thread.start()
+
+    while True:
+        print(ws.status)
+        time.sleep(1)
+        if ws.status == 2:
+            break
