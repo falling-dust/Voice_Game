@@ -40,7 +40,6 @@ from ws4py.client.threadedclient import WebSocketClient
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-
 STATUS_FIRST_FRAME = 0  # 第一帧的标识
 STATUS_CONTINUE_FRAME = 1  # 中间帧标识
 STATUS_LAST_FRAME = 2  # 最后一帧的标识
@@ -49,6 +48,7 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
+
 
 class WsParam(object):
     # 初始化
@@ -214,4 +214,3 @@ if __name__ == "__main__":
     ws = RecognitionWebsocket(ws_url, ws_param)
     ws.connect()
     ws.run_forever()
-
