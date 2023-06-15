@@ -252,14 +252,17 @@ if __name__ == "__main__":
     time.sleep(5)
     print("重启线程")
     # ws = RecognitionWebsocket(ws_url, ws_param)
-    websocket_thread = threading.Thread(target=run_websocket)
-    websocket_thread.start()
 
-    recognize_thread = threading.Thread(target=recognize_instruction)
-    recognize_thread.start()
-
-    while True:
-        print(ws.status)
-        time.sleep(1)
-        if ws.status == 2:
-            break
+    print(ws)
+    print(ws.status)
+    # websocket_thread = threading.Thread(target=run_websocket)
+    # websocket_thread.start()
+    #
+    # recognize_thread = threading.Thread(target=recognize_instruction)
+    # recognize_thread.start()
+    #
+    # while True:
+    #     print(ws.status)
+    #     time.sleep(1)
+    #     if ws.status == 2:
+    #         break
