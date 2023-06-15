@@ -6,6 +6,7 @@ from defines import *
 import json
 import datetime
 
+
 # from iat_ws_python3 import WsParam, RecognitionWebsocket
 
 
@@ -44,7 +45,8 @@ class Gameover(cocos.layer.ColorLayer):
         logo.position = 790, 150
         self.add(logo, 99999)
 
-        # self.schedule(self.update)  # 调度器，将update方法添加到场景中定期更新
+        self.schedule(self.update)  # 调度器，将update方法添加到场景中定期更新
+
         # ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
         #                    APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
         # ws_url = ws_param.create_url()
@@ -63,20 +65,16 @@ class Gameover(cocos.layer.ColorLayer):
         if len(txt) > 16:
             self.game.name = txt[:16]
 
-    # def update(self, dt):
-    #     if self.game.ws.instruct_id == 2:
-    #         self.game.ws.instruct_id = -1
-    #         self.game.play_background_music()
-    #     elif self.game.ws.instruct_id == 3:
-    #         self.game.ws.instruct_id = -1
-    #         self.game.stop_background_music()
-    #     elif self.game.ws.instruct_id == 1:
-    #         self.game.ws.instruct_id = -1
-    #         self.replay()
-
-
-
-
+    def update(self, dt):
+        if self.game.ws.instruct_id == 2:
+            self.game.ws.instruct_id = -1
+            self.game.play_background_music()
+        elif self.game.ws.instruct_id == 3:
+            self.game.ws.instruct_id = -1
+            self.game.stop_background_music()
+        elif self.game.ws.instruct_id == 1:
+            self.game.ws.instruct_id = -1
+            self.replay()
 
         # elif self.game.ws.instruct_id == 4:
         #     self.game.ws.instruct_id = -1
