@@ -54,7 +54,7 @@ class Billboard(cocos.layer.ColorLayer):
         name = ''
         if self.game.name:
             name = self.game.name + u'，'
-        rank = cocos.text.Label(name + u'你的成绩 %d 打败了银河系中 %s%% 的皮皮虾！' % (self.game.score, 99),
+        rank = cocos.text.Label(name + u'你的成绩 %d 打败了银河系中 %s%% 的鼠鼠！' % (self.game.score, 99),
                                 font_name=FONTS,
                                 font_size=16)
         rank.position = 20, 430
