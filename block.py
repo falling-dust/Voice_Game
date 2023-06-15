@@ -8,7 +8,7 @@ class Block(cocos.sprite.Sprite):
     def __init__(self, game):
         super(Block, self).__init__('photo/black.png')
         self.game = game
-        self.ppx = game.ppx
+        self.ppx = game.cat
         self.floor = game.floor
         self.active = True
         self.image_anchor = 0, 0

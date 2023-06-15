@@ -6,7 +6,8 @@ from defines import *
 import json
 import datetime
 
-from iat_ws_python3 import WsParam, RecognitionWebsocket
+
+# from iat_ws_python3 import WsParam, RecognitionWebsocket
 
 
 def run_websocket(ws_instance):
@@ -22,16 +23,16 @@ class Gameover(cocos.layer.ColorLayer):
         self.score = cocos.text.Label(u'分数：%d' % self.game.score,
                                       font_name=FONTS,
                                       font_size=36)
-        self.score.position = 200, 340
+        self.score.position = 365, 480
         self.add(self.score)
 
         menu = cocos.menu.Menu(u'济又输！')
         menu.font_title['font_name'] = FONTS
         menu.font_item['font_name'] = FONTS
         menu.font_item_selected['font_name'] = FONTS
-        self.name = cocos.menu.EntryMenuItem(u'大佬请留名：', self.input_name, self.game.name)
+        self.name = cocos.menu.EntryMenuItem(u'你是?', self.input_name, self.game.name)
         self.name.y = 0
-        submit = cocos.menu.MenuItem(u'提交成绩', self.submit)
+        submit = cocos.menu.MenuItem(u'提交成绩', self.submit, font_size=12)
         submit.y = -33
         top = cocos.menu.MenuItem(u'排行榜', self.game.show_top)
         top.y = -67
@@ -41,10 +42,11 @@ class Gameover(cocos.layer.ColorLayer):
         self.add(menu)
 
         logo = cocos.sprite.Sprite('photo/crossin-logo.png')
-        logo.position = 550, 100
+        logo.position = 790, 150
         self.add(logo, 99999)
 
         self.schedule(self.update)  # 调度器，将update方法添加到场景中定期更新
+
         # ws_param = WsParam(APPId='69027c09', APIKey='bc189e61e8d3a5dffd0329a5f6b9ddc9',
         #                    APISecret='YmVmODkzZGMxNTI4ZjAwMGMzNWY1NjVi', AudioFile=r'')
         # ws_url = ws_param.create_url()
@@ -73,6 +75,7 @@ class Gameover(cocos.layer.ColorLayer):
         elif self.game.ws.instruct_id == 1:
             self.game.ws.instruct_id = -1
             self.replay()
+
         # elif self.game.ws.instruct_id == 4:
         #     self.game.ws.instruct_id = -1
         #     self.game.show_top()

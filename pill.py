@@ -6,7 +6,7 @@ class Pill(cocos.sprite.Sprite):
     def __init__(self, block):
         super(Pill, self).__init__('photo/pill.png')
         self.game = block.game
-        self.ppx = block.game.ppx
+        self.ppx = block.game.cat
         self.floor = block.floor
         self.position = block.x + block.width / 2, block.height + 100
 

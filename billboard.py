@@ -11,7 +11,7 @@ class Billboard(cocos.layer.ColorLayer):
         self.game = game
 
         self.loading = cocos.text.Label(u'加载中...', font_name=FONTS, font_size=20)
-        self.loading.position = 260, 240
+        self.loading.position = 400, 360
         self.add(self.loading)
 
         self.schedule_interval(self.get_top, 0.5)
@@ -36,7 +36,7 @@ class Billboard(cocos.layer.ColorLayer):
                 '{:<10s} {:<10s} {:<10s} {}'.format(rank, str(d['name']), str(d['score']), d['date']),
                 font_name=FONTS, font_size=18)
 
-            t.position = 120, 370 - i * 26
+            t.position = 240, 420 - i * 26
             self.add(t)
             if i >= 6:
                 break
@@ -57,13 +57,13 @@ class Billboard(cocos.layer.ColorLayer):
         rank = cocos.text.Label(name + u'你的成绩 %d 打败了银河系中 %s%% 的鼠鼠！' % (self.game.score, 99),
                                 font_name=FONTS,
                                 font_size=16)
-        rank.position = 20, 430
+        rank.position = 240, 520
         self.add(rank)
 
         top_all = cocos.text.Label(u'排行榜',
                                    font_name=FONTS,
-                                   font_size=20)
-        top_all.position = 260, 380
+                                   font_size=30)
+        top_all.position = 400, 450
         self.add(top_all)
 
         # top_today = cocos.text.Label(u'今日排名',

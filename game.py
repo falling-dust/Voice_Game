@@ -11,7 +11,7 @@ import struct
 from sympy.core import singleton
 
 from iat_ws_python3 import WsParam, RecognitionWebsocket
-from ppx import PPX
+from cat import Cat
 from block import Block
 from gameover import Gameover, run_websocket
 from billboard import Billboard
@@ -22,7 +22,7 @@ from defines import *
 class VoiceGame(cocos.layer.ColorLayer):
     is_event_handler = True
 
-    def __init__(self, ws_instance):
+    def __init__(self,ws_instance):
         # 初始化 VoiceGame 类
         self.ws = ws_instance
         super(VoiceGame, self).__init__(255, 255, 255, 255, WIDTH, HEIGHT)  # 设置场景的背景颜色和大小
@@ -34,13 +34,13 @@ class VoiceGame(cocos.layer.ColorLayer):
         # 分数标签
         self.score = 0
         self.txt_score = cocos.text.Label(u'分数：0', font_name=FONTS, font_size=24, color=BLACK)
-        self.txt_score.position = 500, 440
+        self.txt_score.position = 800, 600
         self.add(self.txt_score, 99999)
 
         # 顶部通知信息
         self.top = '', 0
         self.top_notice = cocos.text.Label(u'', font_name=FONTS, font_size=18, color=BLACK)
-        self.top_notice.position = 400, 410
+        self.top_notice.position = 700, 510
         self.add(self.top_notice, 99999)
 
         self.name = ''  # 玩家姓名
@@ -50,14 +50,14 @@ class VoiceGame(cocos.layer.ColorLayer):
         self.LEVEL = 1500  # 声音保存的阈值
 
         # 顶部声音条
-        self.voiceBar = Sprite('photo/black.png', color=(0, 0, 255))
-        self.voiceBar.position = 20, 450
+        self.voiceBar = Sprite('photo/black.png', color=(100, 200, 255))
+        self.voiceBar.position = 20, 550
         self.voiceBar.scale_y = 0.1
         self.voiceBar.image_anchor = 0, 0
         self.add(self.voiceBar)
 
-        self.ppx = PPX(self)  # 创建角色对象
-        self.add(self.ppx)  # 将角色添加到场景中
+        self.cat = Cat(self)  # 创建角色对象
+        self.add(self.cat)  # 将角色添加到场景中
 
         self.floor = cocos.cocosnode.CocosNode()  # 地板节点
         self.add(self.floor)  # 将地板节点添加到场景中
@@ -96,11 +96,11 @@ class VoiceGame(cocos.layer.ColorLayer):
         pass
 
     def collide(self):
-        px = self.ppx.x - self.floor.x
+        px = self.cat.x - self.floor.x
         for b in self.floor.get_children():
-            if b.x <= px + self.ppx.width * 0.8 and px + self.ppx.width * 0.2 <= b.x + b.width:
-                if self.ppx.y < b.height:
-                    self.ppx.land(b.height)
+            if b.x <= px + self.cat.width * 0.8 and px + self.cat.width * 0.2 <= b.x + b.width:
+                if self.cat.y < b.height:
+                    self.cat.land(b.height)
                     break
 
     def update(self, dt):
@@ -112,14 +112,14 @@ class VoiceGame(cocos.layer.ColorLayer):
         self.voiceBar.scale_x = k / 10000.0  # 根据取样值设置声音条长度
 
         if k > 2000:
-            if not self.ppx.dead:
+            if not self.cat.dead:
                 # 根据取样值更新地板的位置，最大偏移量为 (k / 20.0) 或 150
                 self.floor.x -= min((k / 20.0), 150) * dt
         if k > 6000:
             # 如果取样值大于 6000，调用角色的跳跃方法，参数为 (k - 6000) / 25.0
-            self.ppx.jump((k - 6000) / 25.0)
+            self.cat.jump((k - 6000) / 25.0)
 
-        self.floor.x -= self.ppx.velocity * dt  # 根据角色的速度更新地板的位置
+        self.floor.x -= self.cat.velocity * dt  # 根据角色的速度更新地板的位置
         self.collide()  # 执行碰撞检测
         self.top_notice.x -= 80 * dt  # 移动顶部通知的位置
 
@@ -134,7 +134,7 @@ class VoiceGame(cocos.layer.ColorLayer):
             b.reset()
         self.score = 0
         self.txt_score.element.text = u'分数：0'
-        self.ppx.reset()
+        self.cat.reset()
 
         # 移除游戏结束和计分板（如果存在）
         if self.gameover:
@@ -189,6 +189,6 @@ if __name__ == "__main__":
         if ws.instruct_id == 0:
             ws.instruct_id = -1
             # 初始化Cocos2d导演
-            cocos.director.director.init(width=WIDTH, height=HEIGHT, caption="Let's Go! JieZi!")
+            cocos.director.director.init(width=WIDTH, height=HEIGHT, caption="Let's Go! MaoMao!")
             # 运行场景
             cocos.director.director.run(cocos.scene.Scene(VoiceGame(ws)))

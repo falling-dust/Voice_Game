@@ -5,17 +5,17 @@ from pyglet import image
 import pygame
 
 
-class PPX(cocos.sprite.Sprite):
+class Cat(cocos.sprite.Sprite):
     def __init__(self, game):
 
-        frame_1 = image.AnimationFrame(image.load('photo/ppx1.png'), 0.15)
-        frame_2 = image.AnimationFrame(image.load('photo/ppx2.png'), 0.15)
+        frame_1 = image.AnimationFrame(image.load('photo/cat1.png'), 0.15)
+        frame_2 = image.AnimationFrame(image.load('photo/cat2.png'), 0.15)
         self.frames = image.Animation([frame_1, frame_2])
-        frame_rush_1 = image.AnimationFrame(image.load('photo/ppx_rush1.png'), 0.15)
-        frame_rush_2 = image.AnimationFrame(image.load('photo/ppx_rush2.png'), 0.15)
-        frame_rush_3 = image.AnimationFrame(image.load('photo/ppx_rush3.png'), 0.15)
+        frame_rush_1 = image.AnimationFrame(image.load('photo/jizi_rush1.png'), 0.15)
+        frame_rush_2 = image.AnimationFrame(image.load('photo/jizi_rush2.png'), 0.15)
+        frame_rush_3 = image.AnimationFrame(image.load('photo/jizi_rush3.png'), 0.15)
         self.frames_rush = image.Animation([frame_rush_1, frame_rush_2, frame_rush_3])
-        super(PPX, self).__init__(self.frames)
+        super(Cat, self).__init__(self.frames)
 
         self.sound_rush = pygame.mixer.Sound("music/rush.wav")
         self.sound_die = pygame.mixer.Sound("music/die.wav")
