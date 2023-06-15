@@ -104,13 +104,13 @@ class VoiceGame(cocos.layer.ColorLayer):
         k = max(struct.unpack('2048h', string_audio_data))  # 解析取样数据，找到最大值
         self.voiceBar.scale_x = k / 10000.0  # 根据取样值设置声音条长度
 
-        if k > 3000:
+        if k > 2000:
             if not self.ppx.dead:
                 # 根据取样值更新地板的位置，最大偏移量为 (k / 20.0) 或 150
                 self.floor.x -= min((k / 20.0), 150) * dt
-        if k > 8000:
+        if k > 6000:
             # 如果取样值大于 8000，调用角色的跳跃方法，参数为 (k - 8000) / 25.0
-            self.ppx.jump((k - 8000) / 25.0)
+            self.ppx.jump((k - 6000) / 25.0)
 
         self.floor.x -= self.ppx.velocity * dt  # 根据角色的速度更新地板的位置
         self.collide()  # 执行碰撞检测
