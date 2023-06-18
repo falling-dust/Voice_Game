@@ -32,7 +32,7 @@ class Gameover(cocos.layer.ColorLayer):
         menu.font_item_selected['font_name'] = FONTS
         self.name = cocos.menu.EntryMenuItem(u'你是?', self.input_name, self.game.name)
         self.name.y = 0
-        submit = cocos.menu.MenuItem(u'提交成绩', self.submit, font_size=12)
+        submit = cocos.menu.MenuItem(u'提交成绩', self.submit)
         submit.y = -33
         top = cocos.menu.MenuItem(u'排行榜', self.game.show_top)
         top.y = -67
